@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+
+<html>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <style> circle {fill: lightblue; stroke: black;} </style>
+    <body onload='init()'>
+        <svg width=300 height=300>
+        </svg>
+        <script>
+            async function init() {
+                data = await d3.json('records.json');
+                console.log(data);
+            }
+        </script>
+    </body>
+</html>
