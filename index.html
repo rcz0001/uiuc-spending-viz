@@ -4,12 +4,128 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <style> circle {fill: lightblue; stroke: black;} </style>
     <body onload='init()'>
-        <svg width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="xMinYMin slice">
+        <svg width="100%" height="100%" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet">
         </svg>
         <script>
+            const CHART_CONFIG = [
+                [
+                    {
+                        type: 'PROF',
+                        label: 'Professors',
+                        color: 'Red'
+                    },
+                    {
+                        type: 'ASSOC PROF',
+                        label: 'Associate Professors',
+                        color: 'Orange'
+                    },
+                    {
+                        type: 'ASST PROF',
+                        label: 'Assistant Professors',
+                        color: 'Gold'
+                    },
+                    {
+                        type: 'INSTRUCTOR',
+                        label: 'Instructors/Lecturers',
+                        color: 'Green'
+                    },
+                    {
+                        type: 'POSTDOC',
+                        label: 'Postdocs',
+                        color: 'Blue'
+                    },
+                    {
+                        type: 'MISC RES',
+                        label: 'Research Staff',
+                        color: 'Indigo'
+                    },
+                    {
+                        type: 'MISC SCHOLAR',
+                        label: 'Misc. Scholars',
+                        color: 'Violet'
+                    }
+                ],
+                [
+                    {
+                        type: 'OFFICE SUPPORT',
+                        label: 'Office Support Staff',
+                        color: 'Salmon'
+                    },
+                    {
+                        type: 'BUILDING SERVICE',
+                        label: 'Building Service Workers',
+                        color: 'SandyBrown'
+                    },
+                    {
+                        type: 'DIRECTOR',
+                        label: 'Directors',
+                        color: 'DarkKhaki'
+                    },
+                    {
+                        type: 'COORDINATOR',
+                        label: 'Coordinators',
+                        color: 'MediumAquaMarine'
+                    },
+                    {
+                        type: 'MANAGER',
+                        label: 'Managers',
+                        color: 'CornflowerBlue'
+                    },
+                    {
+                        type: 'SPECIALIST',
+                        label: 'Specialists',
+                        color: 'Purple'
+                    },
+                    {
+                        type: 'OTHER',
+                        label: 'Other',
+                        color: 'HotPink'
+                    }
+                ]
+            ];
+
+            class Segment {
+                constructor(label, data, previous=null) {
+                    this.label = label;
+                    this.data = data
+                    this.previous = previous;
+                }
+
+                calculateCumulative(key) {
+                    if (this.previous === null) {
+                        return this.data[key];
+                    } else {
+                        return this.data[key] + this.previous.calculateCumulative(key);
+                    }
+                }
+            }
+
+            let segments = [];
+
             async function init() {
-                data = await d3.json('records.json');
+                let data = await d3.json('https://rcz0001.github.io/uiuc-spending-viz/records.json');
                 console.log(data);
+                let dataByPositionType = {};
+                for (let i = 0; i < data.length; i++) {
+                    let positionType = data[i]['positionType'];
+                    if (!(positionType in dataByPositionType)) {
+                        dataByPositionType[positionType] = [];
+                    }
+                    dataByPositionType[positionType].push(data[i]);
+                }
+                console.log(dataByPositionType);
+
+                for (let i = 0; i < CHART_CONFIG.length; i++) {
+                    let lastSegment = null;
+                    for (let j = 0; j < CHART_CONFIG[i].length; j++) {
+                        let config = CHART_CONFIG[i][j];
+                        let count = dataByPositionType[config.type].length;
+                        let segmentData = {count};
+                        lastSegment = new Segment(config.label, segmentData, lastSegment);
+                        segments.push(lastSegment);
+                    }
+                }
+                console.log(segments);
             }
         </script>
     </body>
